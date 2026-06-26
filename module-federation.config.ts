@@ -12,9 +12,11 @@ export default createModuleFederationConfig({
   shared: {
     react: {
       singleton: true,
+      eager:true
     },
     "react-dom": {
       singleton: true,
+      eager:true
     },
   },
   
