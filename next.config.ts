@@ -4,11 +4,13 @@ import mfConfig from "./module-federation.config";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  webpack(config: any) {
-    config.plugins.push(new ModuleFederationPlugin(mfConfig))
+  webpack(config: any, { isServer }) {
+    if (!isServer) {
+      config.plugins.push(new ModuleFederationPlugin(mfConfig));
+    }
 
-    return config
-  }
+    return config;
+  },
 };
 
 export default nextConfig;
