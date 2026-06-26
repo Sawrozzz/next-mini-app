@@ -9,7 +9,6 @@ export default createModuleFederationConfig({
   filename: "static/chunks/remoteEntry.js",
 
   manifest: true,
-
   shared: {
     react: {
       singleton: true,
@@ -18,4 +17,5 @@ export default createModuleFederationConfig({
       singleton: true,
     },
   },
+  
 });
