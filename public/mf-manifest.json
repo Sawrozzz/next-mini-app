@@ -1,0 +1,88 @@
+{
+  "id": "payment",
+  "name": "payment",
+  "metaData": {
+    "name": "payment",
+    "type": "app",
+    "buildInfo": {
+      "buildVersion": "0.1.0",
+      "buildName": "payment-mini-app"
+    },
+    "remoteEntry": {
+      "name": "static/chunks/payment-2cacf92caf1446cb.js",
+      "path": "",
+      "type": "global"
+    },
+    "types": {
+      "path": "",
+      "name": "",
+      "zip": "@mf-types.zip",
+      "api": "@mf-types.d.ts"
+    },
+    "globalName": "payment",
+    "pluginVersion": "2.6.0",
+    "publicPath": "/_next/"
+  },
+  "shared": [
+    {
+      "id": "payment:react-dom",
+      "name": "react-dom",
+      "version": "19.2.4",
+      "singleton": true,
+      "requiredVersion": "^19.2.4",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "static/chunks/framework-c49dd1c42c382d85.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      },
+      "fallback": ""
+    },
+    {
+      "id": "payment:react",
+      "name": "react",
+      "version": "19.2.4",
+      "singleton": true,
+      "requiredVersion": "^19.2.4",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "static/chunks/framework-c49dd1c42c382d85.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      },
+      "fallback": ""
+    }
+  ],
+  "remotes": [],
+  "exposes": [
+    {
+      "id": "payment:App",
+      "name": "App",
+      "assets": {
+        "js": {
+          "sync": [
+            "static/chunks/__federation_expose_App.f753c60031b72ed3.js"
+          ],
+          "async": []
+        },
+        "css": {
+          "sync": [],
+          "async": []
+        }
+      },
+      "path": "./App"
+    }
+  ]
+}

@@ -1,20 +1,6 @@
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export default function Home() {
   return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} min-h-screen bg-gray-100`}
-    >
+    <div className={`min-h-screen bg-gray-100`}>
       {/* Header */}
       <header className="border-b bg-white shadow-sm">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
@@ -59,9 +45,7 @@ export default function Home() {
 
           <p className="mt-6 text-center text-sm text-gray-500">
             After scanning and completing the payment, click{" "}
-            <span className="font-semibold text-gray-700">
-              "Check Payment"
-            </span>{" "}
+            <span className="font-semibold text-gray-700">"Check Payment"</span>{" "}
             to verify the transaction.
           </p>
 
