@@ -1,4 +1,4 @@
-import { createModuleFederationConfig } from "@module-federation/enhanced";
+import { createModuleFederationConfig } from "@module-federation/enhanced"
 
 export default createModuleFederationConfig({
   name: "payment",
@@ -6,7 +6,7 @@ export default createModuleFederationConfig({
   exposes: {
     "./App": "./pages/index.tsx",
   },
-  filename: "static/chunks/remoteEntry.js",
+  filename: "remoteEntry.js",
 
   manifest: true,
   shared: {
