@@ -4,12 +4,9 @@ import mfConfig from "./module-federation.config";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  webpack(config: any, { isServer }: { isServer: boolean }) {
+  webpack(config: any) {
     config.plugins.push(new ModuleFederationPlugin(mfConfig))
-    
-    // Fix for remoteEntry chunk not found
-    config.output.publicPath = 'auto'
-    
+
     return config
   }
 };

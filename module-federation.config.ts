@@ -1,16 +1,20 @@
 import { createModuleFederationConfig } from "@module-federation/enhanced";
 
 export default createModuleFederationConfig({
-  name: "payment-mini-app",
-  filename: "remoteEntry.js",
+  name: "payment",
+
   exposes: {
-    "./App": "./pages/_app.tsx",
-    "./index": "./pages/index.tsx",
+    "./App": "./pages/index.tsx",
   },
+
+  manifest: true,
+
   shared: {
-    react: { singleton: true, requiredVersion: false },
-    "react-dom": { singleton: true, requiredVersion: false },
+    react: {
+      singleton: true,
+    },
+    "react-dom": {
+      singleton: true,
+    },
   },
-  runtime: false,
-  library: { type: "var", name: "payment_mini_app" },
 });
