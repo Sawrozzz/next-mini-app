@@ -30,5 +30,20 @@
   "feature.biometric.desc": "ජෛවමිතික මගින් සත්‍යාපනය කරන්න",
   "feature.biometric.action": "සත්‍යාපනය කරන්න",
   "feature.download.action.image": "පින්තූරය බාගන්න",
-  "feature.download.action.file": "PDF බාගන්න"
+  "feature.download.action.file": "PDF බාගන්න",
+  "feature.appearance.title": "පෙනුම",
+  "feature.appearance.desc": "සත්කාරකයෙන් සජීවී භාෂාව සහ තේමාව",
+  "feature.appearance.action": "සත්කාරකයෙන් නැවත කියවන්න",
+  "feature.appearance.live": "සජීවී — සත්කාරකය වෙනස් වන විට යාවත්කාලීන වේ",
+  "feature.appearance.localization": "දේශීයකරණය",
+  "feature.appearance.theme": "තේමාව",
+  "feature.appearance.locale": "පෙදෙස",
+  "feature.appearance.language": "භාෂාව",
+  "feature.appearance.region": "කලාපය",
+  "feature.appearance.direction": "දිශාව",
+  "feature.appearance.preference": "මනාපය",
+  "feature.appearance.mode": "ආකාරය",
+  "feature.appearance.mode.light": "ආලෝකමත්",
+  "feature.appearance.mode.dark": "අඳුරු",
+  "feature.appearance.mode.system": "පද්ධතිය"
 }

@@ -30,5 +30,20 @@
   "feature.biometric.desc": "பயோமெட்ரிக் மூலம் அங்கீகரிக்கவும்",
   "feature.biometric.action": "அங்கீகரிக்கவும்",
   "feature.download.action.image": "படத்தைப் பதிவிறக்கு",
-  "feature.download.action.file": "PDF பதிவிறக்கு"
+  "feature.download.action.file": "PDF பதிவிறக்கு",
+  "feature.appearance.title": "தோற்றம்",
+  "feature.appearance.desc": "ஹோஸ்டிலிருந்து நேரடி மொழி மற்றும் தீம்",
+  "feature.appearance.action": "ஹோஸ்டிலிருந்து மீண்டும் படிக்கவும்",
+  "feature.appearance.live": "நேரடி — ஹோஸ்ட் மாறும்போது புதுப்பிக்கும்",
+  "feature.appearance.localization": "உள்ளூராக்கம்",
+  "feature.appearance.theme": "தீம்",
+  "feature.appearance.locale": "லொக்கேல்",
+  "feature.appearance.language": "மொழி",
+  "feature.appearance.region": "பிராந்தியம்",
+  "feature.appearance.direction": "திசை",
+  "feature.appearance.preference": "விருப்பம்",
+  "feature.appearance.mode": "முறை",
+  "feature.appearance.mode.light": "வெளிச்சம்",
+  "feature.appearance.mode.dark": "இருள்",
+  "feature.appearance.mode.system": "கணினி"
 }

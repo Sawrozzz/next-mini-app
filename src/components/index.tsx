@@ -11,6 +11,7 @@ const featureBase = [
   { id: "download", emoji: "⬇️" },
   { id: "contact", emoji: "👤" },
   { id: "biometric", emoji: "🔐" },
+  { id: "appearance", emoji: "🎨" },
 ];
 
 type Feature = {

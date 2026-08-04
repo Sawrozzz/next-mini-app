@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import { AppearancePage } from "./AppearancePage";
 import { BiometricPage } from "./BiometricPage";
 import { CameraPage } from "./CameraPage";
 import { ContactPage } from "./ContactPage";
@@ -16,4 +17,5 @@ export const featurePages: Record<string, ComponentType<FeaturePageProps>> = {
   download: DownloadPage,
   contact: ContactPage,
   biometric: BiometricPage,
+  appearance: AppearancePage,
 };

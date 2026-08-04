@@ -30,5 +30,20 @@
   "feature.biometric.desc": "Authenticate with biometrics",
   "feature.biometric.action": "Authenticate",
   "feature.download.action.image": "Download Image",
-  "feature.download.action.file": "Download PDF"
+  "feature.download.action.file": "Download PDF",
+  "feature.appearance.title": "Appearance",
+  "feature.appearance.desc": "Live locale and theme from the host",
+  "feature.appearance.action": "Re-read from Host",
+  "feature.appearance.live": "Live — updates when the host changes",
+  "feature.appearance.localization": "Localization",
+  "feature.appearance.theme": "Theme",
+  "feature.appearance.locale": "Locale",
+  "feature.appearance.language": "Language",
+  "feature.appearance.region": "Region",
+  "feature.appearance.direction": "Direction",
+  "feature.appearance.preference": "Preference",
+  "feature.appearance.mode": "Mode",
+  "feature.appearance.mode.light": "Light",
+  "feature.appearance.mode.dark": "Dark",
+  "feature.appearance.mode.system": "System"
 }
