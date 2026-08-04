@@ -1,11 +1,13 @@
 import { createRoot, type Root } from "react-dom/client";
-import AppContent from "./app-content";
-import type { Runtime, AppInstance } from "./types/runtime";
+import App from "./App";
 import "./styles.css";
 
-export function mount(container: HTMLElement, runtime: Runtime): AppInstance {
+export function mount(
+  container: HTMLElement,
+  runtime?: { initialPath?: string },
+) {
   const root: Root = createRoot(container);
-  root.render(<AppContent runtime={runtime} />);
+  root.render(<App initialPath={runtime?.initialPath} />);
 
   return {
     unmount() {
