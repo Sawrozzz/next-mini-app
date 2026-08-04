@@ -1,8 +1,54 @@
+import { useState } from "react";
 import { useT } from "../../hooks/useT";
+import { usePlatformSDK } from "../../hooks/usePlatformSDK";
+import { formatBytes, permissionErrorMessage } from "../../utils/permission";
+import { ResultPanel } from "./ResultPanel";
 import type { FeaturePageProps } from "./feature";
+
+const SAMPLE = `{
+  "files": [
+    {
+      "url": "file:///storage/emulated/0/Download/document.pdf",
+      "fileName": "document.pdf",
+      "mimeType": "application/pdf",
+      "extension": "pdf",
+      "byteSize": 1048576
+    }
+  ]
+}`;
 
 export function FilePage({ isDark }: FeaturePageProps) {
   const { t } = useT();
+  const { sdk } = usePlatformSDK();
+
+  const [documents, setDocuments] = useState<SdkFileModule[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFileUpload = async () => {
+    if (!sdk) return;
+    setLoading(true);
+    setError(null);
+    setDocuments(null);
+    try {
+      const res = await sdk.device.files({
+        reason: "To select documents",
+        multiple: true,
+      });
+      const denial = permissionErrorMessage(res.status, "File");
+      if (denial) {
+        setError(denial);
+        return;
+      }
+      setDocuments(res.data?.files ?? []);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to open file picker.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -110,9 +156,10 @@ export function FilePage({ isDark }: FeaturePageProps) {
                     How it works
                   </h4>
                   <p className={`mt-1 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-                    This feature uses the platform SDK to open the native file picker.
-                    It supports MIME type filtering, multiple file selection, and returns
-                    files with URIs, names, sizes, and MIME types for further processing.
+                    This feature calls <code>sdk.device.files()</code>, which
+                    opens the native file picker and returns the selected files
+                    with their URLs, names, MIME types and sizes. Pass{" "}
+                    <code>accept</code> to filter by MIME type.
                   </p>
                 </div>
               </div>
@@ -120,42 +167,64 @@ export function FilePage({ isDark }: FeaturePageProps) {
 
             <div className="pt-4">
               <button
-                onClick={() => alert("Selecting file...")}
-                className={`w-full rounded-xl bg-amber-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-amber-700 active:scale-[0.98] ${
+                onClick={handleFileUpload}
+                disabled={loading}
+                className={`w-full rounded-xl bg-amber-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-amber-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
                   isDark ? "shadow-lg shadow-amber-600/30" : "shadow-lg shadow-amber-600/25"
                 }`}
               >
-                {t("feature.file.action")}
+                {loading ? t("common.loading") : t("feature.file.action")}
               </button>
             </div>
           </div>
         </div>
 
-        <div
-          className={`rounded-3xl p-8 ${
-            isDark ? "bg-gray-900 border border-gray-800" : "bg-white border border-gray-100"
-          }`}
+        <ResultPanel
+          isDark={isDark}
+          error={error}
+          result={documents}
+          sample={SAMPLE}
         >
-          <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-            Sample Response
-          </h2>
-          <pre className={`mt-4 rounded-xl p-4 overflow-x-auto text-sm ${
-            isDark ? "bg-gray-950 border border-gray-800 text-gray-300" : "bg-gray-50 border border-gray-200 text-gray-700"
-          }`}>
-{`{
-  "files": [
-    {
-      "uri": "file:///storage/emulated/0/Download/document.pdf",
-      "name": "document.pdf",
-      "mimeType": "application/pdf",
-      "size": 1048576,
-      "lastModified": 1705312800000
-    }
-  ],
-  "count": 1
-}`}
-          </pre>
-        </div>
+          {documents && documents.length > 0 ? (
+            <ul className="space-y-3">
+              {documents.map((file, index) => (
+                <li
+                  key={`${file.url}-${index}`}
+                  className={`flex items-center gap-4 rounded-2xl p-4 ${
+                    isDark ? "bg-gray-800/50" : "bg-gray-50"
+                  }`}
+                >
+                  <div
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
+                      isDark ? "bg-amber-900/30" : "bg-amber-100"
+                    }`}
+                  >
+                    <span className="text-xl">📄</span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className={`truncate font-medium ${isDark ? "text-white" : "text-gray-900"}`}
+                    >
+                      {file.fileName ?? `file-${index + 1}`}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {file.mimeType ?? "application/octet-stream"} ·{" "}
+                      {formatBytes(file.byteSize)}
+                    </p>
+                  </div>
+                  <a
+                    href={file.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="shrink-0 text-sm font-medium text-amber-600 hover:underline"
+                  >
+                    {t("common.open")}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </ResultPanel>
 
         <div
           className={`rounded-3xl p-8 text-center ${

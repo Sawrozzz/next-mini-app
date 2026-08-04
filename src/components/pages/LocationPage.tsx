@@ -1,8 +1,69 @@
+import { useState } from "react";
 import { useT } from "../../hooks/useT";
+import { usePlatformSDK } from "../../hooks/usePlatformSDK";
+import { permissionErrorMessage } from "../../utils/permission";
+import { ResultPanel } from "./ResultPanel";
 import type { FeaturePageProps } from "./feature";
+
+const SAMPLE = `{
+  "latitude": 6.9271,
+  "longitude": 79.8612,
+  "accuracy": 15.5,
+  "timestamp": 2026-02-05
+}`;
+
+/**
+ * OpenStreetMap's embed endpoint renders a marked map from a bounding box —
+ * no API key and no map library, which keeps the mini app bundle untouched.
+ * `delta` is roughly a street-level window around the point.
+ */
+function osmEmbedUrl(latitude: number, longitude: number, delta = 0.004) {
+  const bbox = [
+    longitude - delta,
+    latitude - delta,
+    longitude + delta,
+    latitude + delta,
+  ].join(",");
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${latitude},${longitude}`;
+}
+
+function osmLinkUrl(latitude: number, longitude: number) {
+  return `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}#map=16/${latitude}/${longitude}`;
+}
 
 export function LocationPage({ isDark }: FeaturePageProps) {
   const { t } = useT();
+  const { sdk } = usePlatformSDK();
+
+  const [location, setLocation] = useState<SdkDeviceLocationResult | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleViewSdkLocation = async () => {
+    if (!sdk) return;
+    setLoading(true);
+    setError(null);
+    setLocation(null);
+    try {
+      const res = await sdk.device.location({
+        reason: "To view your current location",
+      });
+      const denial = permissionErrorMessage(res.status, "Location");
+      if (denial) {
+        setError(denial);
+        return;
+      }
+      setLocation(res.data ?? null);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to get location via SDK.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -124,9 +185,9 @@ export function LocationPage({ isDark }: FeaturePageProps) {
                   <p
                     className={`mt-1 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
                   >
-                    This feature uses the device&apos;s native Geolocation API
-                    via the platform SDK. It requests high-accuracy position
-                    data and returns latitude, longitude, accuracy etc.
+                    This feature calls <code>sdk.device.location()</code>, which
+                    asks the host app for a high-accuracy fix and returns
+                    latitude, longitude, accuracy and a timestamp.
                   </p>
                 </div>
               </div>
@@ -134,46 +195,86 @@ export function LocationPage({ isDark }: FeaturePageProps) {
 
             <div className="pt-4">
               <button
-                onClick={() => alert("Getting location...")}
-                className={`w-full rounded-xl bg-blue-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-blue-700 active:scale-[0.98] ${
+                onClick={handleViewSdkLocation}
+                disabled={loading}
+                className={`w-full rounded-xl bg-blue-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
                   isDark
                     ? "shadow-lg shadow-blue-600/30"
                     : "shadow-lg shadow-blue-600/25"
                 }`}
               >
-                {t("feature.location.action")}
+                {loading ? t("common.loading") : t("feature.location.action")}
               </button>
             </div>
           </div>
         </div>
 
-        <div
-          className={`rounded-3xl p-8 ${
-            isDark
-              ? "bg-gray-900 border border-gray-800"
-              : "bg-white border border-gray-100"
-          }`}
+        <ResultPanel
+          isDark={isDark}
+          error={error}
+          result={location}
+          sample={SAMPLE}
         >
-          <h2
-            className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
-          >
-            Sample Response
-          </h2>
-          <pre
-            className={`mt-4 rounded-xl p-4 overflow-x-auto text-sm ${
-              isDark
-                ? "bg-gray-950 border border-gray-800 text-gray-300"
-                : "bg-gray-50 border border-gray-200 text-gray-700"
-            }`}
-          >
-            {`{
-  "latitude": 6.9271,
-  "longitude": 79.8612,
-  "accuracy": 15.5,
-  "timestamp": 2026-02-05
-}`}
-          </pre>
-        </div>
+          {location ? (
+            <div className="space-y-4">
+              <div
+                className={`overflow-hidden rounded-2xl border ${
+                  isDark ? "border-gray-800" : "border-gray-200"
+                }`}
+              >
+                <iframe
+                  key={`${location.latitude},${location.longitude}`}
+                  title="Map of the reported location"
+                  src={osmEmbedUrl(location.latitude, location.longitude)}
+                  loading="lazy"
+                  className="h-72 w-full border-0"
+                />
+                <div
+                  className={`flex items-center justify-between gap-3 px-4 py-3 ${
+                    isDark ? "bg-gray-800/50" : "bg-gray-50"
+                  }`}
+                >
+                  <span className="truncate text-xs text-gray-500">
+                    {location.latitude.toFixed(5)},{" "}
+                    {location.longitude.toFixed(5)}
+                  </span>
+                  <a
+                    href={osmLinkUrl(location.latitude, location.longitude)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="shrink-0 text-sm font-medium text-blue-600 hover:underline"
+                  >
+                    {t("common.viewLargerMap")}
+                  </a>
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-3">
+                {[
+                  { label: "Latitude", value: location.latitude },
+                  { label: "Longitude", value: location.longitude },
+                  { label: "Accuracy", value: location.accuracy ?? "—" },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className={`rounded-2xl p-4 ${
+                      isDark ? "bg-gray-800/50" : "bg-gray-50"
+                    }`}
+                  >
+                    <p className="text-xs uppercase tracking-wide text-gray-500">
+                      {item.label}
+                    </p>
+                    <p
+                      className={`mt-1 font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
+                    >
+                      {String(item.value)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </ResultPanel>
 
         <div
           className={`rounded-3xl p-8 text-center ${

@@ -1,8 +1,53 @@
+import { useState } from "react";
 import { useT } from "../../hooks/useT";
+import { usePlatformSDK } from "../../hooks/usePlatformSDK";
+import { formatBytes, permissionErrorMessage } from "../../utils/permission";
+import { ResultPanel } from "./ResultPanel";
 import type { FeaturePageProps } from "./feature";
+
+const SAMPLE = `{
+  "images": [
+    {
+      "url": "file:///storage/emulated/0/DCIM/photo.jpg",
+      "previewUrl": "file:///storage/emulated/0/DCIM/photo.jpg",
+      "fileName": "photo.jpg",
+      "mimeType": "image/jpeg",
+      "extension": "jpg",
+      "byteSize": 3145728
+    }
+  ]
+}`;
 
 export function GalleryPage({ isDark }: FeaturePageProps) {
   const { t } = useT();
+  const { sdk } = usePlatformSDK();
+
+  const [images, setImages] = useState<SdkFileModule[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleImages = async () => {
+    if (!sdk) return;
+    setLoading(true);
+    setError(null);
+    setImages(null);
+    try {
+      const res = await sdk.device.gallery({
+        reason: "To select images",
+        multiple: true,
+      });
+      const denial = permissionErrorMessage(res.status, "Gallery");
+      if (denial) {
+        setError(denial);
+        return;
+      }
+      setImages(res.data?.images ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to open gallery.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -110,9 +155,10 @@ export function GalleryPage({ isDark }: FeaturePageProps) {
                     How it works
                   </h4>
                   <p className={`mt-1 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-                    This feature uses the platform SDK to open the native gallery picker.
-                    It supports single/multi-select, media type filtering (images/videos/all),
-                    and returns selected media as file URIs with metadata.
+                    This feature calls <code>sdk.device.gallery()</code> with{" "}
+                    <code>multiple: true</code>, which opens the native gallery
+                    picker and returns the selected images with their preview
+                    URLs and metadata.
                   </p>
                 </div>
               </div>
@@ -120,44 +166,54 @@ export function GalleryPage({ isDark }: FeaturePageProps) {
 
             <div className="pt-4">
               <button
-                onClick={() => alert("Picking from gallery...")}
-                className={`w-full rounded-xl bg-green-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-green-700 active:scale-[0.98] ${
+                onClick={handleImages}
+                disabled={loading}
+                className={`w-full rounded-xl bg-green-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-green-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
                   isDark ? "shadow-lg shadow-green-600/30" : "shadow-lg shadow-green-600/25"
                 }`}
               >
-                {t("feature.gallery.action")}
+                {loading ? t("common.loading") : t("feature.gallery.action")}
               </button>
             </div>
           </div>
         </div>
 
-        <div
-          className={`rounded-3xl p-8 ${
-            isDark ? "bg-gray-900 border border-gray-800" : "bg-white border border-gray-100"
-          }`}
+        <ResultPanel
+          isDark={isDark}
+          error={error}
+          result={images}
+          sample={SAMPLE}
         >
-          <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-            Sample Response
-          </h2>
-          <pre className={`mt-4 rounded-xl p-4 overflow-x-auto text-sm ${
-            isDark ? "bg-gray-950 border border-gray-800 text-gray-300" : "bg-gray-50 border border-gray-200 text-gray-700"
-          }`}>
-{`{
-  "assets": [
-    {
-      "uri": "file:///storage/emulated/0/DCIM/photo.jpg",
-      "width": 4032,
-      "height": 3024,
-      "type": "image",
-      "duration": null,
-      "fileSize": 3145728,
-      "creationTime": 1705312800000
-    }
-  ],
-  "count": 1
-}`}
-          </pre>
-        </div>
+          {images && images.length > 0 ? (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              {images.map((image, index) => (
+                <figure
+                  key={`${image.url}-${index}`}
+                  className={`overflow-hidden rounded-2xl ${
+                    isDark ? "bg-gray-800/50" : "bg-gray-50"
+                  }`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- the SDK hands back blob/file URLs the Next loader cannot optimize */}
+                  <img
+                    src={image.previewUrl ?? image.url}
+                    alt={image.fileName ?? `Image ${index + 1}`}
+                    className="h-40 w-full object-cover"
+                  />
+                  <figcaption className="px-3 py-2">
+                    <p
+                      className={`truncate text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}
+                    >
+                      {image.fileName ?? `image-${index + 1}`}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatBytes(image.byteSize)}
+                    </p>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          ) : null}
+        </ResultPanel>
 
         <div
           className={`rounded-3xl p-8 text-center ${

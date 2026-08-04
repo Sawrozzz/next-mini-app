@@ -3,6 +3,11 @@
   "app.subtitle": "Explore and test all available SDK features.",
   "common.back": "Back",
   "common.test": "Test Feature",
+  "common.loading": "Working...",
+  "common.response": "Response",
+  "common.sampleResponse": "Sample Response",
+  "common.open": "Open",
+  "common.viewLargerMap": "Open in OpenStreetMap",
   "feature.location.title": "Location",
   "feature.location.desc": "Test device location API",
   "feature.location.action": "Get My Location",
@@ -23,5 +28,7 @@
   "feature.contact.action": "Pick Contact",
   "feature.biometric.title": "Biometric",
   "feature.biometric.desc": "Authenticate with biometrics",
-  "feature.biometric.action": "Authenticate"
+  "feature.biometric.action": "Authenticate",
+  "feature.download.action.image": "Download Image",
+  "feature.download.action.file": "Download PDF"
 }

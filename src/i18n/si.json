@@ -3,6 +3,11 @@
   "app.subtitle": "පවතින සියලුම SDK විශේෂාංග ගවේෂණය කර පරීක්ෂා කරන්න.",
   "common.back": "ආපසු",
   "common.test": "විශේෂාංගය පරීක්ෂා කරන්න",
+  "common.loading": "සකසමින්...",
+  "common.response": "ප්‍රතිචාරය",
+  "common.sampleResponse": "නියැදි ප්‍රතිචාරය",
+  "common.open": "විවෘත කරන්න",
+  "common.viewLargerMap": "OpenStreetMap හි විවෘත කරන්න",
   "feature.location.title": "ස්ථානය",
   "feature.location.desc": "උපාංගයේ ස්ථාන API පරීක්ෂා කරන්න",
   "feature.location.action": "මගේ ස්ථානය ලබා ගන්න",
@@ -23,5 +28,7 @@
   "feature.contact.action": "සම්බන්ධතාවයක් තෝරන්න",
   "feature.biometric.title": "ජෛවමිතික",
   "feature.biometric.desc": "ජෛවමිතික මගින් සත්‍යාපනය කරන්න",
-  "feature.biometric.action": "සත්‍යාපනය කරන්න"
+  "feature.biometric.action": "සත්‍යාපනය කරන්න",
+  "feature.download.action.image": "පින්තූරය බාගන්න",
+  "feature.download.action.file": "PDF බාගන්න"
 }

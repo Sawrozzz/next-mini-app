@@ -1,8 +1,46 @@
+import { useState } from "react";
 import { useT } from "../../hooks/useT";
+import { usePlatformSDK } from "../../hooks/usePlatformSDK";
+import { formatBytes, permissionErrorMessage } from "../../utils/permission";
+import { ResultPanel } from "./ResultPanel";
 import type { FeaturePageProps } from "./feature";
+
+const SAMPLE = `{
+  "url": "file:///data/user/0/.../IMG_1234.jpg",
+  "fileName": "img.jpg",
+  "mimeType": "image/jpeg",
+  "byteSize": 2847392
+}`;
 
 export function CameraPage({ isDark }: FeaturePageProps) {
   const { t } = useT();
+  const { sdk } = usePlatformSDK();
+
+  const [photo, setPhoto] = useState<SdkDeviceCameraResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleOpenCamera = async () => {
+    if (!sdk) return;
+    setLoading(true);
+    setError(null);
+    setPhoto(null);
+    try {
+      const res = await sdk.device.camera({
+        reason: "To capture a photo for verification",
+      });
+      const denial = permissionErrorMessage(res.status, "Camera");
+      if (denial) {
+        setError(denial);
+        return;
+      }
+      setPhoto(res.data ?? null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to open camera.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -110,9 +148,9 @@ export function CameraPage({ isDark }: FeaturePageProps) {
                     How it works
                   </h4>
                   <p className={`mt-1 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-                    This feature uses the platform SDK to access the device camera.
-                    It supports front/back camera switching, flash modes, zoom control,
-                    and returns captured images as base64 or file URIs.
+                    This feature calls <code>sdk.device.camera()</code>, which
+                    opens the host app&apos;s camera and returns the captured
+                    image as a URL with its file name, MIME type and size.
                   </p>
                 </div>
               </div>
@@ -120,36 +158,49 @@ export function CameraPage({ isDark }: FeaturePageProps) {
 
             <div className="pt-4">
               <button
-                onClick={() => alert("Opening camera...")}
-                className={`w-full rounded-xl bg-purple-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-purple-700 active:scale-[0.98] ${
+                onClick={handleOpenCamera}
+                disabled={loading}
+                className={`w-full rounded-xl bg-purple-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-purple-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
                   isDark ? "shadow-lg shadow-purple-600/30" : "shadow-lg shadow-purple-600/25"
                 }`}
               >
-                {t("feature.camera.action")}
+                {loading ? t("common.loading") : t("feature.camera.action")}
               </button>
             </div>
           </div>
         </div>
 
-        <div
-          className={`rounded-3xl p-8 ${
-            isDark ? "bg-gray-900 border border-gray-800" : "bg-white border border-gray-100"
-          }`}
+        <ResultPanel
+          isDark={isDark}
+          error={error}
+          result={photo}
+          sample={SAMPLE}
         >
-          <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-            Sample Response
-          </h2>
-          <pre className={`mt-4 rounded-xl p-4 overflow-x-auto text-sm ${
-            isDark ? "bg-gray-950 border border-gray-800 text-gray-300" : "bg-gray-50 border border-gray-200 text-gray-700"
-          }`}>
-{`{
-  "url": "file:///data/user/0/.../IMG_1234.jpg",
-  "fileName": img.jpg,
-  "mimeType: *images/jpeg
-  "byteSize": 2847392
-}`}
-          </pre>
-        </div>
+          {photo ? (
+            <div
+              className={`overflow-hidden rounded-2xl ${
+                isDark ? "bg-gray-800/50" : "bg-gray-50"
+              }`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- the SDK hands back blob/file URLs the Next loader cannot optimize */}
+              <img
+                src={photo.url}
+                alt={photo.fileName ?? "Captured photo"}
+                className="max-h-96 w-full object-contain"
+              />
+              <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+                <span
+                  className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}
+                >
+                  {photo.fileName ?? "capture.jpg"}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {photo.mimeType ?? "image/*"} · {formatBytes(photo.byteSize)}
+                </span>
+              </div>
+            </div>
+          ) : null}
+        </ResultPanel>
 
         <div
           className={`rounded-3xl p-8 text-center ${

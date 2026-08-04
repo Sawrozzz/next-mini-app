@@ -1,8 +1,44 @@
+import { useState } from "react";
 import { useT } from "../../hooks/useT";
+import { usePlatformSDK } from "../../hooks/usePlatformSDK";
+import { permissionErrorMessage } from "../../utils/permission";
+import { ResultPanel } from "./ResultPanel";
 import type { FeaturePageProps } from "./feature";
+
+const SAMPLE = `{
+  "contactName": "John Doe",
+  "number": "+1234567890"
+}`;
 
 export function ContactPage({ isDark }: FeaturePageProps) {
   const { t } = useT();
+  const { sdk } = usePlatformSDK();
+
+  const [contact, setContact] = useState<SdkDeviceContactResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleOpenContactPicker = async () => {
+    if (!sdk) return;
+    setLoading(true);
+    setError(null);
+    setContact(null);
+    try {
+      const res = await sdk.device.contact({ reason: "To select a contact" });
+      const denial = permissionErrorMessage(res.status, "Contact");
+      if (denial) {
+        setError(denial);
+        return;
+      }
+      setContact(res.data ?? null);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to open contact picker.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -110,10 +146,10 @@ export function ContactPage({ isDark }: FeaturePageProps) {
                     How it works
                   </h4>
                   <p className={`mt-1 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-                    This feature uses the platform SDK to access device contacts.
-                    It supports reading contacts from both phone and email apps,
-                    with permission handling and contact filtering options.
-                    Returns contact data including names, phone numbers, emails, and avatars.
+                    This feature calls <code>sdk.device.contact()</code>, which
+                    opens the host app&apos;s contact picker. Only the contact
+                    the user picks is shared back — the name and phone number —
+                    so the mini app never reads the full phone book.
                   </p>
                 </div>
               </div>
@@ -121,44 +157,48 @@ export function ContactPage({ isDark }: FeaturePageProps) {
 
             <div className="pt-4">
               <button
-                onClick={() => alert("Opening contacts...")}
-                className={`w-full rounded-xl bg-pink-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-pink-700 active:scale-[0.98] ${
+                onClick={handleOpenContactPicker}
+                disabled={loading}
+                className={`w-full rounded-xl bg-pink-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-pink-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
                   isDark ? "shadow-lg shadow-pink-600/30" : "shadow-lg shadow-pink-600/25"
                 }`}
               >
-                {t("feature.contact.action")}
+                {loading ? t("common.loading") : t("feature.contact.action")}
               </button>
             </div>
           </div>
         </div>
 
-        <div
-          className={`rounded-3xl p-8 ${
-            isDark ? "bg-gray-900 border border-gray-800" : "bg-white border border-gray-100"
-          }`}
+        <ResultPanel
+          isDark={isDark}
+          error={error}
+          result={contact}
+          sample={SAMPLE}
         >
-          <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-            Sample Response
-          </h2>
-          <pre className={`mt-4 rounded-xl p-4 overflow-x-auto text-sm ${
-            isDark ? "bg-gray-950 border border-gray-800 text-gray-300" : "bg-gray-50 border border-gray-200 text-gray-700"
-          }`}>
-{`{
-  "contacts": [
-    {
-      "id": "contact_001",
-      "name": "John Doe",
-      "phone": "+1234567890",
-      "email": "john@example.com",
-      "avatar": "file:///storage/emulated/0/contacts/john.jpg",
-      "isStarred": false
-    }
-  ],
-  "count": 1,
-  "hasPermission": true
-}`}
-          </pre>
-        </div>
+          {contact ? (
+            <div
+              className={`flex items-center gap-4 rounded-2xl p-4 ${
+                isDark ? "bg-gray-800/50" : "bg-gray-50"
+              }`}
+            >
+              <div
+                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${
+                  isDark ? "bg-pink-900/30" : "bg-pink-100"
+                }`}
+              >
+                <span className="text-2xl">👤</span>
+              </div>
+              <div className="min-w-0">
+                <p
+                  className={`truncate font-medium ${isDark ? "text-white" : "text-gray-900"}`}
+                >
+                  {contact.contactName ?? "Unnamed contact"}
+                </p>
+                <p className="text-sm text-gray-500">{contact.number ?? "—"}</p>
+              </div>
+            </div>
+          ) : null}
+        </ResultPanel>
 
         <div
           className={`rounded-3xl p-8 text-center ${
@@ -176,7 +216,7 @@ export function ContactPage({ isDark }: FeaturePageProps) {
             Ready to access?
           </h3>
           <p className={`mt-1 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-            Tap the button above to access your contacts using the platform SDK with permission handling.
+            Tap the button above to pick a contact using the platform SDK with permission handling.
           </p>
         </div>
       </div>

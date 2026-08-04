@@ -3,6 +3,11 @@
   "app.subtitle": "கிடைக்கும் அனைத்து SDK அம்சங்களையும் ஆராய்ந்து சோதிக்கவும்.",
   "common.back": "பின்",
   "common.test": "அம்சத்தை சோதிக்கவும்",
+  "common.loading": "செயலாக்கம்...",
+  "common.response": "பதில்",
+  "common.sampleResponse": "மாதிரி பதில்",
+  "common.open": "திற",
+  "common.viewLargerMap": "OpenStreetMap இல் திற",
   "feature.location.title": "இருப்பிடம்",
   "feature.location.desc": "சாதன இருப்பிட API சோதிக்கவும்",
   "feature.location.action": "என் இருப்பிடத்தைப் பெறு",
@@ -23,5 +28,7 @@
   "feature.contact.action": "தொடர்பைத் தேர்ந்தெடு",
   "feature.biometric.title": "பயோமெட்ரிக்",
   "feature.biometric.desc": "பயோமெட்ரிக் மூலம் அங்கீகரிக்கவும்",
-  "feature.biometric.action": "அங்கீகரிக்கவும்"
+  "feature.biometric.action": "அங்கீகரிக்கவும்",
+  "feature.download.action.image": "படத்தைப் பதிவிறக்கு",
+  "feature.download.action.file": "PDF பதிவிறக்கு"
 }

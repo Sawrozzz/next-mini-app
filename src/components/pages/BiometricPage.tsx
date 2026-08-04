@@ -1,8 +1,46 @@
+import { useState } from "react";
 import { useT } from "../../hooks/useT";
+import { usePlatformSDK } from "../../hooks/usePlatformSDK";
+import { ResultPanel } from "./ResultPanel";
 import type { FeaturePageProps } from "./feature";
+
+const SAMPLE = `{
+  "success": true
+}`;
 
 export function BiometricPage({ isDark }: FeaturePageProps) {
   const { t } = useT();
+  const { sdk } = usePlatformSDK();
+
+  const [biometric, setBiometric] = useState<SdkDeviceBiometricResult | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleAuthenticateBiometric = async () => {
+    if (!sdk) return;
+    setLoading(true);
+    setError(null);
+    setBiometric(null);
+    try {
+      const res = await sdk.device.biometric({
+        reason: "To verify your identity",
+      });
+      if (!res.data?.success) {
+        setError(res.error || "Biometric authentication failed.");
+      }
+      setBiometric(res.data ?? null);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Biometric authentication failed.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -110,10 +148,10 @@ export function BiometricPage({ isDark }: FeaturePageProps) {
                     How it works
                   </h4>
                   <p className={`mt-1 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-                    This feature uses the platform SDK to access device biometric sensors.
-                    It supports fingerprint scanning and facial recognition with hardware
-                    backed encryption. Authentication returns a secure token without storing
-                    biometric data locally.
+                    This feature calls <code>sdk.device.biometric()</code>, which
+                    prompts the host app&apos;s fingerprint or face check. The
+                    mini app only receives a success flag — no biometric data
+                    ever leaves the device.
                   </p>
                 </div>
               </div>
@@ -121,37 +159,50 @@ export function BiometricPage({ isDark }: FeaturePageProps) {
 
             <div className="pt-4">
               <button
-                onClick={() => alert("Authenticating...")}
-                className={`w-full rounded-xl bg-indigo-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-indigo-700 active:scale-[0.98] ${
+                onClick={handleAuthenticateBiometric}
+                disabled={loading}
+                className={`w-full rounded-xl bg-indigo-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-indigo-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
                   isDark ? "shadow-lg shadow-indigo-600/30" : "shadow-lg shadow-indigo-600/25"
                 }`}
               >
-                {t("feature.biometric.action")}
+                {loading ? t("common.loading") : t("feature.biometric.action")}
               </button>
             </div>
           </div>
         </div>
 
-        <div
-          className={`rounded-3xl p-8 ${
-            isDark ? "bg-gray-900 border border-gray-800" : "bg-white border border-gray-100"
-          }`}
+        <ResultPanel
+          isDark={isDark}
+          error={error}
+          result={biometric}
+          sample={SAMPLE}
         >
-          <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-            Sample Response
-          </h2>
-          <pre className={`mt-4 rounded-xl p-4 overflow-x-auto text-sm ${
-            isDark ? "bg-gray-950 border border-gray-800 text-gray-300" : "bg-gray-50 border border-gray-200 text-gray-700"
-          }`}>
-{`{
-  "success": true,
-  "method": "fingerprint",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "timestamp": 1699900000000,
-  "expiresIn": 3600
-}`}
-          </pre>
-        </div>
+          {biometric?.success ? (
+            <div
+              className={`flex items-center gap-4 rounded-2xl p-4 ${
+                isDark ? "bg-gray-800/50" : "bg-gray-50"
+              }`}
+            >
+              <div
+                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
+                  isDark ? "bg-green-900/30" : "bg-green-100"
+                }`}
+              >
+                <span className="text-2xl">✅</span>
+              </div>
+              <div>
+                <p
+                  className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}
+                >
+                  Identity verified
+                </p>
+                <p className="text-sm text-gray-500">
+                  The host app confirmed your biometric check.
+                </p>
+              </div>
+            </div>
+          ) : null}
+        </ResultPanel>
 
         <div
           className={`rounded-3xl p-8 text-center ${
