@@ -235,17 +235,17 @@ export function LocationPage({ isDark }: FeaturePageProps) {
                   }`}
                 >
                   <span className="truncate text-xs text-gray-500">
-                    {location.latitude.toFixed(5)},{" "}
-                    {location.longitude.toFixed(5)}
+                    Latitude: {location.latitude.toFixed(5)},{" "}
+                    Longitude: {location.longitude.toFixed(5)}
                   </span>
-                  <a
+                  {/* <a
                     href={osmLinkUrl(location.latitude, location.longitude)}
                     target="_blank"
                     rel="noreferrer"
                     className="shrink-0 text-sm font-medium text-blue-600 hover:underline"
                   >
                     {t("common.viewLargerMap")}
-                  </a>
+                  </a> */}
                 </div>
               </div>
 
