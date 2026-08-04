@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsc -b && vite build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "preview": "vite preview --port 3005"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

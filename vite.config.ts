@@ -20,7 +20,7 @@ export default defineConfig({
     outDir: "dist",
     cssCodeSplit: true,
     lib: {
-      entry: "./src/main.tsx",
+      entry: "./src/mount.tsx",
       name: "RevenueMiniApp",
       formats: ["es"],
       fileName: () => "[name][hash].js",
