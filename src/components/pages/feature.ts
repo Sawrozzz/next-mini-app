@@ -4,3 +4,8 @@ export type Feature = {
   description: string;
   emoji: string;
 };
+
+export type FeaturePageProps = {
+  feature: Feature;
+  isDark: boolean;
+};
