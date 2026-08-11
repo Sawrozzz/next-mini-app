@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { useT } from "../../hooks/useT";
 import { usePlatformSDK } from "../../hooks/usePlatformSDK";
+import { ROUTE_DEPTH_PATH } from "../../routes";
 import { permissionErrorMessage } from "../../utils/permission";
 import { ResultPanel } from "./ResultPanel";
 import type { FeaturePageProps } from "./feature";
@@ -34,12 +36,17 @@ function osmLinkUrl(latitude: number, longitude: number) {
 export function LocationPage({ isDark }: FeaturePageProps) {
   const { t } = useT();
   const { sdk } = usePlatformSDK();
+  const navigate = useNavigate();
 
   const [location, setLocation] = useState<SdkDeviceLocationResult | null>(
     null,
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleCheckRoute = () => {
+    navigate(ROUTE_DEPTH_PATH);
+  };
 
   const handleViewSdkLocation = async () => {
     if (!sdk) return;
@@ -204,6 +211,16 @@ export function LocationPage({ isDark }: FeaturePageProps) {
                 }`}
               >
                 {loading ? t("common.loading") : t("feature.location.action")}
+              </button>
+              <button
+                onClick={handleCheckRoute}
+                className={`mt-3 w-full rounded-xl border px-6 py-4 text-lg font-semibold transition active:scale-[0.98] ${
+                  isDark
+                    ? "border-gray-700 bg-gray-800 text-white hover:bg-gray-700"
+                    : "border-gray-200 bg-white text-gray-900 hover:bg-gray-50"
+                }`}
+              >
+                Check Route
               </button>
             </div>
           </div>
